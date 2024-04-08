@@ -148,3 +148,9 @@ AUTHENTICATION_BACKENDS = [
     'core.backends.EmailBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+# settings.py
+
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'edtechbackend.utils.custom_exception_handler'
+}
