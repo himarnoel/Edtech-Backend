@@ -8,6 +8,8 @@ django = "*"
 psycopg2-binary = "*"
 dj-database-url = "*"
 djangorestframework = "*"
+gunicorn = "*"
+uvicorn = "*"
 
 [dev-packages]
 
