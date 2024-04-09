@@ -2,9 +2,13 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import CustomUser
-from .serializers import UserSignUpSerializer, UserLoginSerializer
-from .utils import  send_verification_email
+from .serializers import UserSignUpSerializer, UserLoginSerializer, PasswordResetRequestSerializer, PasswordResetSerializer
+from .utils import  send_verification_email, send_resetPassword_email
+from django.contrib.auth.tokens import default_token_generator
 import uuid
+from django.utils.http import urlsafe_base64_decode
+
+
 
 
 class UserSignUpAPIView(generics.CreateAPIView):
@@ -65,3 +69,41 @@ class UserLoginAPIView(generics.CreateAPIView):
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         })
+
+class PasswordResetRequestAPIView(generics.GenericAPIView):
+    serializer_class = PasswordResetRequestSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+        try:
+            user =  CustomUser.objects.get(email=email)
+        except user.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Generate reset token
+        token = default_token_generator.make_token(user)
+        send_resetPassword_email(user, token)
+        return Response({"detail": "Password reset link sent"}, status=status.HTTP_200_OK)
+    
+
+class PasswordResetAPIView(generics.GenericAPIView):
+    serializer_class = PasswordResetSerializer
+
+    def post(self, request, uidb64, token, *args, **kwargs):
+        try:
+            uid = urlsafe_base64_decode(uidb64)
+            user = CustomUser.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+            user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            new_password = serializer.validated_data['new_password']
+            user.set_password(new_password)
+            user.save()
+            return Response({"detail": "Password reset successful"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Invalid reset link"}, status=status.HTTP_400_BAD_REQUEST)
