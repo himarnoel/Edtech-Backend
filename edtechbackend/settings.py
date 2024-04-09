@@ -14,6 +14,8 @@ from pathlib import Path
 import os
 import dj_database_url
 from datetime import timedelta
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,6 +29,14 @@ SECRET_KEY = "django-insecure-o@973zhr*br2_(ye+l4p1(#f0!i(1@opx=_xsrk3nv$zx5$t38
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('host_user_email')
+EMAIL_HOST_PASSWORD =  os.environ.get('host_user_password')
+
 
 ALLOWED_HOSTS = ['localhost','127.0.0.1',"edtech-backend-q2ud.onrender.com"]
 
@@ -145,12 +155,13 @@ SIMPLE_JWT = {
 # AUTH_USER_MODEL = "core.User"
 
 AUTHENTICATION_BACKENDS = [
-    'core.backends.EmailBackend',
+    'core.backends.EmailVerificationBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
 # settings.py
 
-REST_FRAMEWORK = {
-    'EXCEPTION_HANDLER': 'edtechbackend.utils.custom_exception_handler'
-}
+# REST_FRAMEWORK = {
+#     'EXCEPTION_HANDLER': 'edtechbackend.utils.custom_exception_handler'
+# }
+

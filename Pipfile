@@ -12,6 +12,7 @@ gunicorn = "*"
 uvicorn = "*"
 django-cors-headers = "*"
 djangorestframework-simplejwt = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
