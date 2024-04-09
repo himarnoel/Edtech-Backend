@@ -3,7 +3,10 @@ from django.db import models
 
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
-    username = models.CharField(max_length=150, unique=True)  # Adjust max_length as needed
+    username = models.CharField(max_length=150, unique=True) 
+    fullName=models.CharField(max_length=200) 
+    
+    
 
 class Meta:
     verbose_name_plural = 'Custom Users'
