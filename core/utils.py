@@ -11,24 +11,30 @@ def send_verification_email(email, verification_token):
     to_email = email
     
     # Render email template with context
-    html_content = render_to_string('verification_email.html', {'verification_link': f'http://localhost:8000/auth/api/verify-email/{verification_token}/'})
+    html_content = render_to_string('verification_email.html', {'verification_link': f'http://localhost:8000/auth/api/verify-email/{verification_token}/','useremail': email})
     
     email = EmailMultiAlternatives(subject, '', from_email, [to_email])
     email.attach_alternative(html_content, "text/html")
-    email.send()
-     
-    # message = f'Please click the following link to verify your email: http://localhost:8000/api/verify-email/{verification_token}/'
-    # sender_email = settings.EMAIL_HOST_USER  # Use a sender email address from your domain
-    # recipient_list = [email]
-    # send_mail(subject, message, sender_email, recipient_list)
+    email.send(fail_silently=True)
+ 
     
 
 def send_resetPassword_email(user, token):
+    subject = 'Password Reset'
+    from_email = settings.EMAIL_HOST_USER  # Use a sender email address from your domain
+    to_email = user.email
+    
+    
     reset_link = f" http://localhost:8000/auth/api/reset-password/{urlsafe_base64_encode(force_bytes(user.pk))}/{token}/"
-    send_mail(
-            'Password Reset',
-            f'Click the following link to reset your password: {reset_link}',
-            'from@example.com',
-            [user.email],
-            fail_silently=False,
-        )
+    
+    html_content = render_to_string("resetpassword.html",{"reset_link":reset_link,'useremail': user.email, "userName":user.fullName})
+    
+    
+    
+    
+    
+    email = EmailMultiAlternatives(subject, '', from_email, [to_email])
+    email.attach_alternative(html_content, "text/html")
+    email.send(fail_silently=True)
+    
+  
