@@ -4,7 +4,7 @@ from .models import CustomUser
 class UserSignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = [ 'username', 'email', 'fullName','password']
+        fields = [ 'username', 'email', 'fullName','password',"accept_terms_and_conditions"]
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):

@@ -13,6 +13,7 @@ uvicorn = "*"
 django-cors-headers = "*"
 djangorestframework-simplejwt = "*"
 python-dotenv = "*"
+rest-api-payload = "*"
 
 [dev-packages]
 

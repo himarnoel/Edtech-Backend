@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.template.loader import render_to_string
+from rest_api_payload import success_response, error_response
 
 
 def send_verification_email(email, verification_token):
@@ -37,4 +38,17 @@ def send_resetPassword_email(user, token):
     email.attach_alternative(html_content, "text/html")
     email.send(fail_silently=True)
     
-  
+def error_message(message):
+    payload=error_response(
+            status="Failed",
+            message=message
+    )
+    return payload
+
+def success_message(data, message):
+    payload= success_response(
+                status="Success",
+                message=message, 
+                data=data    
+            )
+    return payload

@@ -7,6 +7,7 @@ class CustomUser(AbstractUser):
     username = models.CharField(max_length=150, unique=True) 
     fullName=models.CharField(max_length=200) 
     email_verified = models.BooleanField(default=False)
+    accept_terms_and_conditions=models.BooleanField(default=False)
     verification_token = models.UUIDField(default=uuid.uuid4, editable=False)
     
     
