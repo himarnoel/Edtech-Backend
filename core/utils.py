@@ -24,9 +24,10 @@ def send_resetPassword_email(user, token):
     subject = 'Password Reset'
     from_email = settings.EMAIL_HOST_USER  # Use a sender email address from your domain
     to_email = user.email
+    pk=urlsafe_base64_encode(force_bytes(user.pk))
     
     
-    reset_link = f" {baseURL}/auth/api/reset-password/{urlsafe_base64_encode(force_bytes(user.pk))}/{token}/"
+    reset_link = f" {baseURL}/auth/api/reset-password/{pk}/{token}/"
     
     html_content = render_to_string("resetpassword.html",{"reset_link":reset_link,'useremail': user.email, "userName":user.fullName})
     

@@ -93,12 +93,12 @@ class PasswordResetRequestAPIView(generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        
         if serializer.is_valid():
             email = serializer.validated_data['email']
             try:
                 user =  CustomUser.objects.get(email=email)
-            except user.DoesNotExist:
+            except CustomUser.DoesNotExist:
                 payload=error_message(message="User not found")
                 return Response(data=payload, status=status.HTTP_404_NOT_FOUND)
             
@@ -132,7 +132,7 @@ class PasswordResetAPIView(generics.GenericAPIView):
                 new_password = serializer.validated_data['new_password']
                 user.set_password(new_password)
                 user.save()
-                payload=success_message(message="Password reset successful",data=serializer.data)
+                payload=success_message(message="Password reset successful",data="")
                 return Response(data=payload, status=status.HTTP_200_OK)
             firstkey=next(iter(serializer.errors))
             payload=error_message(message=serializer.errors[firstkey][0])
