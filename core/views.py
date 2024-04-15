@@ -48,7 +48,7 @@ class EmailVerificationAPIView(generics.GenericAPIView):
             else:
                 user.email_verified = True
                 user.save()
-                payload=success_message(message="Email verified successfully.",data=user)
+                payload=success_message(message="Email verified successfully.",data="Nil")
                 return Response(data=payload, status=status.HTTP_200_OK)
         except CustomUser.DoesNotExist:
             payload=error_message(message="Invalid token")
