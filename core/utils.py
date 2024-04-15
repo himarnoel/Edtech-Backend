@@ -17,27 +17,27 @@ def send_verification_email(email, verification_token):
     email = EmailMultiAlternatives(subject, '', from_email, [to_email])
     email.attach_alternative(html_content, "text/html")
     email.send(fail_silently=True)
- 
     
 
-def send_resetPassword_email(user, token):
+def send_resetPassword_email(user, token2):
     subject = 'Password Reset'
     from_email = settings.EMAIL_HOST_USER  # Use a sender email address from your domain
     to_email = user.email
-    pk=urlsafe_base64_encode(force_bytes(user.pk))
+    token1=urlsafe_base64_encode(force_bytes(user.pk))
     
     
-    reset_link = f" {baseURL}/auth/api/reset-password/{pk}/{token}/"
+    reset_link = f"{baseURL}/changepassword?token1={token1}&token2={token2}/"
     
     html_content = render_to_string("resetpassword.html",{"reset_link":reset_link,'useremail': user.email, "userName":user.fullName})
-    
-    
-    
-    
-    
     email = EmailMultiAlternatives(subject, '', from_email, [to_email])
     email.attach_alternative(html_content, "text/html")
     email.send(fail_silently=True)
+    
+    
+    
+    
+    
+    
     
 def error_message(message):
     payload=error_response(
