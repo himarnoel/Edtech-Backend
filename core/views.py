@@ -127,12 +127,17 @@ class PasswordResetAPIView(generics.GenericAPIView):
 
         if user is not None and default_token_generator.check_token(user, token):
             serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            new_password = serializer.validated_data['new_password']
-            user.set_password(new_password)
-            user.save()
-            payload=success_message(message="Password reset successful",data=serializer.data)
-            return Response(data=payload, status=status.HTTP_200_OK)
+            if serializer.is_valid():
+                serializer.is_valid(raise_exception=True)
+                new_password = serializer.validated_data['new_password']
+                user.set_password(new_password)
+                user.save()
+                payload=success_message(message="Password reset successful",data=serializer.data)
+                return Response(data=payload, status=status.HTTP_200_OK)
+            firstkey=next(iter(serializer.errors))
+            payload=error_message(message=serializer.errors[firstkey][0])
+            return Response(data=payload,status=status.HTTP_400_BAD_REQUEST)
+            
         else:
             payload=error_message(message="Invalid reset link")
             return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
