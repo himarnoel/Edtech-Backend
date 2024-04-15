@@ -12,7 +12,7 @@ def send_verification_email(email, verification_token):
     to_email = email
     
     # Render email template with context
-    html_content = render_to_string('verification_email.html', {'verification_link': f'{baseURL}/auth/api/verify-email/{verification_token}/','useremail': email})
+    html_content = render_to_string('verification_email.html', {'verification_link': f'{baseURL}/verified?token={verification_token}/','useremail': email})
     
     email = EmailMultiAlternatives(subject, '', from_email, [to_email])
     email.attach_alternative(html_content, "text/html")
