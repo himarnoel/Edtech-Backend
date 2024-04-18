@@ -10,12 +10,12 @@ from django.http import Http404
 
 # Create your views here.
 
-# http://localhost:8000/course/api/category/05d5462c-84fe-4538-be50-c88c097aad19a/
+
 
 
 class BaseCRUDViewSet(viewsets.ModelViewSet):
     """
-    Base class for handling POST, PUT, and PATCH,DELETE and GET both single and all requests in one method.
+    Base class for handling POST, PUT, and PATCH,DELETE and GET both single and all requests in one Class.
     """
 
     def handle_create_update(self, request, *args, **kwargs):
@@ -123,6 +123,10 @@ class BaseCRUDViewSet(viewsets.ModelViewSet):
             payload = error_message(
                 message="An error occurred during retrieval.")
             return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
 
 
 class CategoryViewSet(BaseCRUDViewSet):
