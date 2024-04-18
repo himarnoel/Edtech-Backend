@@ -2,18 +2,19 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 import uuid
 
+
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
-    username = models.CharField(max_length=150, unique=True) 
-    fullName=models.CharField(max_length=200) 
+    username = models.CharField(max_length=150, unique=True)
+    fullName = models.CharField(max_length=200)
     email_verified = models.BooleanField(default=False)
-    accept_terms_and_conditions=models.BooleanField(default=False)
+    accept_terms_and_conditions = models.BooleanField(default=False)
     verification_token = models.UUIDField(default=uuid.uuid4, editable=False)
-    
-    
+
 
 class Meta:
     verbose_name_plural = 'Custom Users'
+
 
 # Rename reverse accessors for CustomUser model
 CustomUser.groups.field.remote_field.related_name = 'custom_user_groups'
