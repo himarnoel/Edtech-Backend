@@ -5,74 +5,164 @@ from .serializer import CategorySerializer, SubcategorySerializer, CourseSeriali
 from .utils import success_message, error_message
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
+from django.http import Http404
 
 # Create your views here.
 
+# http://localhost:8000/course/api/category/05d5462c-84fe-4538-be50-c88c097aad19a/
 
-class CategoryViewSet(viewsets.ModelViewSet):
+
+class BaseCRUDViewSet(viewsets.ModelViewSet):
+    """
+    Base class for handling POST, PUT, and PATCH,DELETE and GET both single and all requests in one method.
+    """
+
+    def handle_create_update(self, request, *args, **kwargs):
+        """
+        Handles creation (POST), update (PUT), and partial update (PATCH) requests.
+        """
+        # Determine if the request is a POST or an update request
+        is_post = request.method == 'POST'
+        try:
+            if is_post:
+                # For POST requests, there is no instance to update
+                instance = None
+                data = request.data
+            else:
+                # For PUT and PATCH requests, get the existing instance
+                instance = self.get_object()
+                data = request.data
+
+            # Create a serializer instance with the data and instance
+            serializer = self.get_serializer(
+                instance, data=data, partial=not is_post)
+
+            # Check if the data is valid
+            if serializer.is_valid():
+                # Save the instance if valid data is provided
+                obj = serializer.save()
+                status_code = status.HTTP_201_CREATED if is_post else status.HTTP_200_OK
+                # Return a success response with the serializer data
+                payload = success_message(
+                    message="Created Successfully" if is_post else "Updated Successfully",
+                    data=serializer.data
+                )
+                return Response(data=payload, status=status_code)
+
+            # Handle validation errors
+            first_key = next(iter(serializer.errors))
+            error_msg = serializer.errors[first_key][0]
+            payload = error_message(
+                message=f"{first_key.title()} is empty" if error_msg else error_msg
+            )
+            return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+
+        except NotFound:
+            # Handle case where object is not found
+            payload = error_message(message="ID not found.")
+            return Response(data=payload, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            payload = error_message(message="An error occurred")
+            return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+
+    def destroy(self, request, *args, **kwargs):
+        # Attempt to retrieve the object to be deleted
+        try:
+            instance = self.get_object()
+            # Perform the delete operation
+            self.perform_destroy(instance)
+            payload = success_message(
+                message="Deleted successfully", data="")
+            # Return a success response with a 204 status code
+            return Response(data=payload, status=status.HTTP_204_NO_CONTENT)
+
+        except NotFound:
+            payload = error_message(
+                message="Id not found")
+            return Response(data=payload, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            # Handle any unexpected exceptions that may occur
+            payload = error_message(
+                message="An error occurred during deletion")
+            return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+
+    def list(self, request, *args, **kwargs):
+        """
+        Retrieve a list of objects from the queryset.
+        """
+
+        queryset = self.filter_queryset(self.get_queryset())
+
+        # Paginate the queryset if required
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        # If no pagination is required, serialize and return the full queryset
+        serializer = self.get_serializer(queryset, many=True)
+        payload = success_message(
+            message="Fetched successfully", data=serializer.data)
+        return Response(data=payload, status=status.HTTP_200_OK)
+
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance)
+            payload = success_message(
+                message="Fetched successfully", data=serializer.data)
+            return Response(data=payload, status=status.HTTP_200_OK)
+        except NotFound:
+            payload = error_message(message="ID not found")
+            return Response(data=payload, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            payload = error_message(
+                message="An error occurred during retrieval.")
+            return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CategoryViewSet(BaseCRUDViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
+    # You can call handle_create_update for create, update, and partial_update methods.
     def create(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
 
-        serializer = self.get_serializer(data=request.data)
+    def update(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
 
-        if serializer.is_valid():
-
-            obj = serializer.save()
-
-            payload = success_message(
-                message="Created Category Successfully", data=serializer.data)
-            return Response(data=payload, status=status.HTTP_201_CREATED)
-
-        # Custom Validation error hadling
-        first_key = next(iter(serializer.errors))
-        error_msg = serializer.errors[first_key][0]
-        payload = error_message(message= f"{first_key.title()} is empty" if error_msg else error_message)
-        return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+    def partial_update(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
 
 
-class SubcategoryViewSet(viewsets.ModelViewSet):
+class SubcategoryViewSet(BaseCRUDViewSet):
     queryset = Subcategory.objects.all()
     serializer_class = SubcategorySerializer
 
     def create(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
 
-        serializer = self.get_serializer(data=request.data)
+    def update(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
 
-        if serializer.is_valid():
-
-            obj = serializer.save()
-
-            payload = success_message(
-                message="Created Successfully", data=serializer.data)
-            return Response(data=payload, status=status.HTTP_201_CREATED)
-
-        # Custom Validation error hadling
-        first_key = next(iter(serializer.errors))
-        error_msg = serializer.errors[first_key][0]
-        payload = error_message(message= f"{first_key.title()} is empty" if error_msg else error_message)
-        return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+    def partial_update(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
 
 
-class CourseViewSet(viewsets.ModelViewSet):
+class CourseViewSet(BaseCRUDViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
 
     def create(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
 
-        serializer = self.get_serializer(data=request.data)
+    def update(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
 
-        if serializer.is_valid():
-
-            obj = serializer.save()
-
-            payload = success_message(
-                message="Created Successfully", data=serializer.data)
-            return Response(data=payload, status=status.HTTP_201_CREATED)
-
-        # Custom Validation error hadling
-        first_key = next(iter(serializer.errors))
-        error_msg = serializer.errors[first_key][0]
-        payload = error_message(message= f"{first_key.title()} is empty" if error_msg else error_message)
-        return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+    def partial_update(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
