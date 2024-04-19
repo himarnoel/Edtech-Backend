@@ -11,7 +11,6 @@ class LessonSerializer(serializers.ModelSerializer):
 class ModuleSerializer(serializers.ModelSerializer):
     # Nested serialization for lessons in a module
     lessons = LessonSerializer(many=True, read_only=True)
-
     class Meta:
         model = Module
         fields = '__all__'

@@ -6,7 +6,7 @@ from core.utils import success_message, error_message
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
-from django.http import Http404
+
 
 # Create your views here.
 
@@ -15,7 +15,6 @@ class BaseCRUDViewSet(viewsets.ModelViewSet):
     """
     Base class for handling POST, PUT, and PATCH,DELETE and GET both single and all requests in one Class.
     """
-
     def handle_create_update(self, request, *args, **kwargs):
         """
         Handles creation (POST), update (PUT), and partial update (PATCH) requests.
@@ -124,3 +123,30 @@ class BaseCRUDViewSet(viewsets.ModelViewSet):
 
 
 
+class ModuleViewSet(BaseCRUDViewSet):
+    queryset = Module.objects.all()
+    serializer_class = ModuleSerializer
+     # You can call handle_create_update for create, update, and partial_update methods.
+    def create(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
+
+
+class LessonViewSet(viewsets.ModelViewSet):
+    queryset = Lesson.objects.all()
+    serializer_class = LessonSerializer
+    
+    # You can call handle_create_update for create, update, and partial_update methods.
+    def create(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
