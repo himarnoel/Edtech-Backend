@@ -137,7 +137,7 @@ class ModuleViewSet(BaseCRUDViewSet):
         return self.handle_create_update(request, *args, **kwargs)
 
 
-class LessonViewSet(viewsets.ModelViewSet):
+class LessonViewSet(BaseCRUDViewSet):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     
