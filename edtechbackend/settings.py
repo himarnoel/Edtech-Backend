@@ -157,7 +157,7 @@ SIMPLE_JWT = {
 }
 
 # Custom user model
-# AUTH_USER_MODEL = "core.User"
+AUTH_USER_MODEL = "core.CustomUser"
 
 AUTHENTICATION_BACKENDS = [
     'core.backends.EmailVerificationBackend',

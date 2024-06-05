@@ -15,6 +15,9 @@ djangorestframework-simplejwt = "*"
 python-dotenv = "*"
 rest-api-payload = "*"
 drf-yasg = "*"
+pip = "*"
+install = "*"
+requests = "*"
 
 [dev-packages]
 
