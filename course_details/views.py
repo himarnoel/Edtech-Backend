@@ -126,6 +126,7 @@ class BaseCRUDViewSet(viewsets.ModelViewSet):
 class ModuleViewSet(BaseCRUDViewSet):
     queryset = Module.objects.all()
     serializer_class = ModuleSerializer
+    
      # You can call handle_create_update for create, update, and partial_update methods.
     def create(self, request, *args, **kwargs):
         return self.handle_create_update(request, *args, **kwargs)

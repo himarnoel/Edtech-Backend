@@ -172,3 +172,4 @@ class TransactionViewSet(BaseCRUDViewSet):
 class EnrollmentViewSet(BaseCRUDViewSet):
     queryset = Enrollment.objects.all()
     serializer_class = EnrollmentSerializer
+    permission_classes = [IsAuthenticated]

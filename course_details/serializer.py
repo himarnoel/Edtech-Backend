@@ -1,11 +1,14 @@
 from rest_framework import serializers
 from .models import Module, Lesson
 
+
+
 class LessonSerializer(serializers.ModelSerializer):
+    # Serializing all fields in the Lesson model
     class Meta:
         model = Lesson
         fields = '__all__'
-        # Serializing all fields in the Lesson model
+        
 
 
 class ModuleSerializer(serializers.ModelSerializer):

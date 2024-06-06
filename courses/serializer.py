@@ -8,10 +8,12 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = '__all__'  # Serialize all fields in the Course model
-    
+        
+
+
 class SubcategorySerializer(serializers.ModelSerializer):
     course = CourseSerializer(many=True, read_only=True)
-
+    
     class Meta:
         model = Subcategory
         fields = '__all__'  # Serialize all fields in the Subcategory model
@@ -20,7 +22,7 @@ class SubcategorySerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     # Nested serializers for subcategories and courses
     subcategories = SubcategorySerializer(many=True, read_only=True)
-
+    
     class Meta:
         model = Category
         fields = '__all__'  # Serialize all fields in the Category model

@@ -15,6 +15,7 @@ import os
 import dj_database_url
 from datetime import timedelta
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -30,16 +31,15 @@ SECRET_KEY = "django-insecure-o@973zhr*br2_(ye+l4p1(#f0!i(1@opx=_xsrk3nv$zx5$t38
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('host_user_email')
-EMAIL_HOST_PASSWORD =  os.environ.get('host_user_password')
+EMAIL_HOST_USER = os.environ.get("host_user_email")
+EMAIL_HOST_PASSWORD = os.environ.get("host_user_password")
 
 
-ALLOWED_HOSTS = ['localhost','127.0.0.1',"edtech-backend-q2ud.onrender.com"]
-
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "edtech-backend-q2ud.onrender.com"]
 
 
 # Application definition
@@ -51,27 +51,25 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'drf_yasg',
+    "drf_yasg",
     "core",
     "courses",
     "enrollment",
     "course_details",
-    'rest_framework',
-    'rest_framework_simplejwt',
-    'corsheaders',
-    
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-
 ]
 
 ROOT_URLCONF = "edtechbackend.urls"
@@ -93,8 +91,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "edtechbackend.wsgi.application"
-CORS_ALLOW_ALL_ORIGINS = True 
-
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Database
@@ -107,6 +104,12 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     "default": dj_database_url.config(
+#         default=os.environ.get("DATABASE_LINK"), conn_max_age=600
+#     )
+# }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -115,9 +118,15 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
 
 
@@ -145,23 +154,23 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
         # Add other authentication classes if needed
     ),
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=45),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=45),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
 # Custom user model
 AUTH_USER_MODEL = "core.CustomUser"
 
 AUTHENTICATION_BACKENDS = [
-    'core.backends.EmailVerificationBackend',
-    'django.contrib.auth.backends.ModelBackend',
+    "core.backends.EmailVerificationBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 # settings.py
@@ -170,10 +179,4 @@ AUTHENTICATION_BACKENDS = [
 #     'EXCEPTION_HANDLER': 'edtechbackend.utils.custom_exception_handler'
 # }
 
-SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'Basic': {
-            'type': 'basic'
-        }
-    }
-}
+SWAGGER_SETTINGS = {"SECURITY_DEFINITIONS": {"Basic": {"type": "basic"}}}
