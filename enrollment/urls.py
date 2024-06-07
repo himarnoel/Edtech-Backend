@@ -1,11 +1,13 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import EnrollmentViewSet,TransactionViewSet
+from .views import TransactionViewSet, EnrollmentViewSet, verify_payment
 
-# Create a router and register your viewsets
+
 router = DefaultRouter()
-router.register(r'payment', TransactionViewSet, basename='transaction')
-router.register(r'', EnrollmentViewSet, basename='enrollment')
+router.register(r'transactions', TransactionViewSet)
+router.register(r'enrollments', EnrollmentViewSet)
 
-
-urlpatterns = router.urls
+urlpatterns = [
+    path('', include(router.urls)),
+    path('verify-payment/', verify_payment, name='verify_payment'),
+]
