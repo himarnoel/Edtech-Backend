@@ -86,7 +86,12 @@ class TransactionViewSet(BaseCRUDViewSet):
         user = request.user
         course_id = request.data.get("course")
         amount = request.data.get("amount")
-
+        
+        if Transaction.objects.filter(user=user, course_id=course_id).exists():
+            payload = error_message(message="User already paid for this course")
+            return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+  
+  
         headers = {
             "Authorization": f"Bearer {os.getenv('PAYSTACK_SECRET_KEY')}",
             "Content-Type": "application/json",
@@ -134,10 +139,11 @@ class EnrollmentViewSet(BaseCRUDViewSet):
         if Enrollment.objects.filter(user=user, course_id=course_id).exists():
             payload = error_message(message="User already enrolled in this course")
             return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+        print("user", user)
 
         # Check if the payment was successful
         try:
-            transaction = Transaction.objects.get(user=user, course_id=course_id, status="completed")
+            transaction = Transaction.objects.get(user=user, course_id=course_id, status="success")
         except Transaction.DoesNotExist:
             payload = error_message(message="Payment not completed")
             return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
