@@ -16,8 +16,8 @@ python-dotenv = "*"
 rest-api-payload = "*"
 drf-yasg = "*"
 pip = "*"
-install = "*"
 requests = "*"
+firebase-admin = "*"
 
 [dev-packages]
 
