@@ -21,3 +21,8 @@ class PasswordResetRequestSerializer(serializers.Serializer):
 
 class PasswordResetSerializer(serializers.Serializer):
     new_password = serializers.CharField(max_length=128)
+
+
+
+class GoogleLoginSerializer(serializers.Serializer):
+    idToken = serializers.CharField(write_only=True)

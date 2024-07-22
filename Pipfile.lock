@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "0cc7c3ecbb2b268d24203f198bbc05a1ad1f5f6a922daaf64a2c38e697288adb"
+            "sha256": "0953f141c8e63e2ce38e064fe47980de03f5dc580505303a20256ca269c4ac37"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -883,6 +883,15 @@
             ],
             "markers": "python_version >= '3.6' and python_version < '4'",
             "version": "==4.9"
+        },
+        "setuptools": {
+            "hashes": [
+                "sha256:032d42ee9fb536e33087fb66cac5f840eb9391ed05637b3f2a76a7c8fb477936",
+                "sha256:33874fdc59b3188304b2e7c80d9029097ea31627180896fb549c578ceb8a0855"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==71.1.0"
         },
         "sqlparse": {
             "hashes": [

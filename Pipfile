@@ -18,6 +18,7 @@ drf-yasg = "*"
 pip = "*"
 requests = "*"
 firebase-admin = "*"
+setuptools = "*"
 
 [dev-packages]
 
