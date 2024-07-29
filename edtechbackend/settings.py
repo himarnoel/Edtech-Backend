@@ -113,7 +113,6 @@ DATABASES = {
         default=os.environ.get("DATABASE_LINK"), conn_max_age=600,
     )
 }
-# postgresql://edtechbase2_cxhn_user:LJJnLnjBZHtrMSH5AcEqMq6clq8xP2tC@dpg-cqjegbogph6c7395roi0-a.oregon-postgres.render.com/edtechbase2_cxhn
 
 
 # Password validation
