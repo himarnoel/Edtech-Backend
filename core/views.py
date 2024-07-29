@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from .models import CustomUser
-from .serializers import UserSignUpSerializer,GoogleLoginSerializer, UserLoginSerializer, PasswordResetRequestSerializer, PasswordResetSerializer
+from .serializers import UserSignUpSerializer, UserLoginSerializer, PasswordResetRequestSerializer, PasswordResetSerializer
 from .utils import send_verification_email, send_resetPassword_email
 from django.contrib.auth.tokens import default_token_generator
 import uuid
@@ -156,33 +156,33 @@ class PasswordResetAPIView(generics.GenericAPIView):
 
     
 
-class GoogleLoginView(generics.GenericAPIView):
-    permission_classes = [AllowAny]
-    serializer_class = GoogleLoginSerializer
+# class GoogleLoginView(generics.GenericAPIView):
+#     permission_classes = [AllowAny]
+#     serializer_class = GoogleLoginSerializer
     
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        id_token = serializer.validated_data['idToken']
+#     def post(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         id_token = serializer.validated_data['idToken']
 
-        try:
-            # Verify the Firebase ID token
-            decoded_token = auth.verify_id_token(id_token)
-            email = decoded_token.get('email')
+#         try:
+#             # Verify the Firebase ID token
+#             decoded_token = auth.verify_id_token(id_token)
+#             email = decoded_token.get('email')
 
-            if email:
-                user, created = User.objects.get_or_create(email=email)
+#             if email:
+#                 user, created = User.objects.get_or_create(email=email)
 
-                if created:
-                    user.username = email  # Optional: Set a default username
-                    user.save()
-                payload = success_message(message="Login Successful", data={
-                'user': email,
-            })
-                return Response(data=payload, status=status.HTTP_200_OK)
-            else:
-                payload = error_message(message="Invalid token")
-                return Response(data=payload, status=status.HTTP_401_UNAUTHORIZED)
-        except Exception as e:
-            payload = error_message(message=str(e))
-            return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+#                 if created:
+#                     user.username = email  # Optional: Set a default username
+#                     user.save()
+#                 payload = success_message(message="Login Successful", data={
+#                 'user': email,
+#             })
+#                 return Response(data=payload, status=status.HTTP_200_OK)
+#             else:
+#                 payload = error_message(message="Invalid token")
+#                 return Response(data=payload, status=status.HTTP_401_UNAUTHORIZED)
+#         except Exception as e:
+#             payload = error_message(message=str(e))
+#             return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)

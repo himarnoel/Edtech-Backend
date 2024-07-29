@@ -24,7 +24,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Initialize Firebase Admin SDK
-from core.firebase import cred
+# from core.firebase import cred
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -110,9 +110,10 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 DATABASES = {
     "default": dj_database_url.config(
-        default=os.environ.get("DATABASE_LINK"), conn_max_age=600
+        default=os.environ.get("DATABASE_LINK"), conn_max_age=600,
     )
 }
+# postgresql://edtechbase2_cxhn_user:LJJnLnjBZHtrMSH5AcEqMq6clq8xP2tC@dpg-cqjegbogph6c7395roi0-a.oregon-postgres.render.com/edtechbase2_cxhn
 
 
 # Password validation
