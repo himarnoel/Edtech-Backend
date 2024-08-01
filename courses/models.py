@@ -2,6 +2,7 @@ from django.db import models
 from core.models import CustomUser
 import uuid
 
+
 # Create your models here.
 # This is for the display
 
@@ -31,3 +32,18 @@ class Course(models.Model):
 
 
 
+class CourseReview(models.Model):
+    RATING_CHOICES = (
+        (1, '1'),
+        (2, '2'),
+        (3, '3'),
+        (4, '4'),
+        (5, '5')
+    )
+    user = models.ForeignKey(CustomUser, related_name='reviews', on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, related_name='reviews', on_delete=models.CASCADE)
+    rating = models.IntegerField(choices=RATING_CHOICES)
+    comment = models.TextField()
+
+    def __str__(self):
+        return f"{self.course} <-> {self.rating} <-> {self.comment}"
