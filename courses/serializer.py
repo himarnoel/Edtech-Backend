@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Subcategory, Course
+from .models import Category,  Course
 from course_details.serializer import ModuleSerializer
 
 
@@ -11,18 +11,12 @@ class CourseSerializer(serializers.ModelSerializer):
         
 
 
-class SubcategorySerializer(serializers.ModelSerializer):
-    course = CourseSerializer(many=True, read_only=True)
-    
-    class Meta:
-        model = Subcategory
-        fields = '__all__'  # Serialize all fields in the Subcategory model
 
 
 class CategorySerializer(serializers.ModelSerializer):
     # Nested serializers for subcategories and courses
-    subcategories = SubcategorySerializer(many=True, read_only=True)
-    
+    course = CourseSerializer(many=True, read_only=True)
+
     class Meta:
         model = Category
         fields = '__all__'  # Serialize all fields in the Category model
