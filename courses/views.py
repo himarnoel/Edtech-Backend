@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from .models import Category, Subcategory, Course
-from .serializer import CategorySerializer, SubcategorySerializer, CourseSerializer
+from .models import Category,  Course
+from .serializer import CategorySerializer,  CourseSerializer
 from .utils import success_message, error_message
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -143,7 +143,7 @@ class BaseCRUDViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(BaseCRUDViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.order_by('name')
     serializer_class = CategorySerializer
     
 
@@ -158,24 +158,11 @@ class CategoryViewSet(BaseCRUDViewSet):
         return self.handle_create_update(request, *args, **kwargs)
 
 
-class SubcategoryViewSet(BaseCRUDViewSet):
-    queryset = Subcategory.objects.all()
-    serializer_class = SubcategorySerializer
-
-    def create(self, request, *args, **kwargs):
-        return self.handle_create_update(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        return self.handle_create_update(request, *args, **kwargs)
-
-    def partial_update(self, request, *args, **kwargs):
-        return self.handle_create_update(request, *args, **kwargs)
 
 
 class CourseViewSet(BaseCRUDViewSet):
-    queryset = Course.objects.all()
+    queryset = Course.objects.order_by('title')
     serializer_class = CourseSerializer
-   
 
     def create(self, request, *args, **kwargs):
         return self.handle_create_update(request, *args, **kwargs)
