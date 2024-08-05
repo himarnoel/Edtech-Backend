@@ -15,6 +15,7 @@ import os
 import dj_database_url
 from datetime import timedelta
 from dotenv import load_dotenv
+from corsheaders.defaults import default_headers
 
 
 
@@ -68,8 +69,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -97,22 +98,27 @@ TEMPLATES = [
 WSGI_APPLICATION = "edtechbackend.wsgi.application"
 CORS_ALLOW_ALL_ORIGINS = True
 
+# CORS_ALLOW_HEADERS = list(default_headers) + [
+#     'authorization',
+#     'content-type',
+# ]
+
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
-
 DATABASES = {
-    "default": dj_database_url.config(
-        default=os.environ.get("DATABASE_LINK"), conn_max_age=600,
-    )
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
 }
+
+# DATABASES = {
+#     "default": dj_database_url.config(
+#         default=os.environ.get("DATABASE_LINK"), conn_max_age=600,
+#     )
+# }
 
 
 # Password validation
@@ -157,15 +163,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-        # Add other authentication classes if needed
-    ),
-}
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=45),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=20),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
@@ -182,5 +182,13 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,  # Number of items per page
 }
+
+REST_FRAMEWORK = {
+   'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    
+}
+
 
 SWAGGER_SETTINGS = {"SECURITY_DEFINITIONS": {"Basic": {"type": "basic"}}}
