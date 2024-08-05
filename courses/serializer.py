@@ -12,11 +12,12 @@ class CourseSerializer(serializers.ModelSerializer):
         
 
 class CourseReviewSerializer(serializers.ModelSerializer):
-     course = CourseSerializer(many=True, read_only=True)
+     course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
+     user = serializers.ReadOnlyField(source='user.email')
      class Meta:
         model = CourseReview
-        fields = '__all__' 
-        read_only_fields = ['course', 'user']
+        fields = ['coursereview_id', 'course', 'rating', 'comment', 'user',]
+        read_only_fields = ['user']
 
 class CategorySerializer(serializers.ModelSerializer):
     # Nested serializers courses
