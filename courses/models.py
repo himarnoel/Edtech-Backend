@@ -40,6 +40,7 @@ class CourseReview(models.Model):
         (4, '4'),
         (5, '5')
     )
+    coursereview_id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False, unique=True)
     user = models.ForeignKey(CustomUser, related_name='reviews', on_delete=models.CASCADE)
     course = models.ForeignKey(Course, related_name='reviews', on_delete=models.CASCADE)
     rating = models.IntegerField(choices=RATING_CHOICES)
