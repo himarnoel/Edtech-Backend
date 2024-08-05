@@ -69,9 +69,6 @@ class CourseReviewViewSet(BaseCRUDViewSet):
         """
         Create a new review ensuring the course is valid and the user is authenticated.
         """
-        print(f"Headers: {request.headers}")
-        if 'Authorization' not in request.headers:
-           return Response({"detailser": "Authentication credentials were not provided."}, status=status.HTTP_403_FORBIDDEN)
         course_id = request.data.get('course')
         if not Course.objects.filter(course_id=course_id).exists():
             payload = error_message(message="Invalid course ID")
