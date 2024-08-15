@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from .models import Transaction, Enrollment
+from courses.models import Course
 from .serializers import TransactionSerializer, EnrollmentSerializer
 import uuid
 import requests
@@ -25,9 +26,9 @@ def initialize_payment(user, amount):
     }
     payload = {
         "email": user.email,
-        "amount": amount,
+        "amount": int(amount * 100),  # Paystack expects amount in kobo (100 kobo = 1 Naira)
         "reference": str(uuid.uuid4()),
-        "callback_url": "http://localhost:3000/enrollment/api/verify-payment/",
+        "callback_url": "http://localhost:3000/dashboard/payment-confirmation",
     }
     response = requests.post(
         "https://api.paystack.co/transaction/initialize",
@@ -60,7 +61,7 @@ class BaseCRUDViewSet(viewsets.ModelViewSet):
         try:
             instance = self.get_object()
             self.perform_destroy(instance)
-            payload = success_message(message="Deleted successfully", data="")
+            payload = success_message(message="Deleted successfully", data={})
             return Response(data=payload, status=status.HTTP_204_NO_CONTENT)
         except Exception:
             return error_response("An error occurred during deletion")
@@ -88,30 +89,42 @@ class BaseCRUDViewSet(viewsets.ModelViewSet):
 class TransactionViewSet(BaseCRUDViewSet):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
+    permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         user = request.user
         course_ids = request.data.get("courses", [])  # List of course IDs
         amount = request.data.get("amount")
 
+        # Validate the amount
+        try:
+            amount = float(amount)
+            if amount <= 0:
+                return error_response("Amount must be greater than zero")
+        except (ValueError, TypeError):
+            return error_response("Invalid amount provided")
+
         # Check if the user has already paid for any of the courses
-        existing_transactions = Transaction.objects.filter(user=user, course_id__in=course_ids).values_list('course_id', flat=True)
-        if existing_transactions:
-            return error_response(f"User already paid for course(s): {existing_transactions}")
+        existing_courses = set(Transaction.objects.filter(
+            user=user
+        ).values_list('courses__id', flat=True))
+
+        if existing_courses.intersection(course_ids):
+            return error_response(f"User already paid for course(s): {list(existing_courses.intersection(course_ids))}")
 
         response = initialize_payment(user, amount)
         response_data = response.json()
 
         if response_data["status"]:
-            # Create a transaction for each course
-            for course_id in course_ids:
-                Transaction.objects.create(
-                    user=user,
-                    course_id=course_id,
-                    amount=amount,
-                    reference=response_data["data"]["reference"],
-                    status="Pending",
-                )
+            # Create a transaction and link to courses
+            transaction = Transaction.objects.create(
+                user=user,
+                amount=amount,
+                reference=response_data["data"]["reference"],
+                status="Pending",
+            )
+            transaction.courses.set(course_ids)
+
             payload = success_message(
                 message="Payment initialized successfully",
                 data={"payment_url": response_data["data"]["authorization_url"]},
@@ -119,6 +132,7 @@ class TransactionViewSet(BaseCRUDViewSet):
             return Response(data=payload, status=status.HTTP_200_OK)
         else:
             return error_response("Payment initialization failed")
+
 
 class EnrollmentViewSet(BaseCRUDViewSet):
     queryset = Enrollment.objects.all()
@@ -129,20 +143,23 @@ class EnrollmentViewSet(BaseCRUDViewSet):
         user = request.user
         course_ids = request.data.get("courses", [])  # List of course IDs
 
+        if not course_ids:
+            return error_response("No courses provided")
+
         # Check if the user is already enrolled in any of the courses
-        existing_enrollments = Enrollment.objects.filter(user=user, course_id__in=course_ids).values_list('course_id', flat=True)
+        existing_enrollments = Enrollment.objects.filter(user=user, course__in=course_ids).values_list('course', flat=True)
         if existing_enrollments:
             return error_response(f"User already enrolled in course(s): {existing_enrollments}")
 
         # Ensure payment is successful for all courses
-        successful_transactions = Transaction.objects.filter(user=user, course_id__in=course_ids, status="success")
+        successful_transactions = Transaction.objects.filter(user=user, course__in=course_ids, status="success")
         if successful_transactions.count() != len(course_ids):
             return error_response("Payment not completed for all courses")
 
         # Enroll the user in each course
         enrollments = []
         for transaction in successful_transactions:
-            enrollment = Enrollment.objects.create(user=user, course_id=transaction.course_id, transaction=transaction)
+            enrollment = Enrollment.objects.create(user=user, course=transaction.course, transaction=transaction)
             enrollments.append(enrollment)
 
         serializer = self.get_serializer(enrollments, many=True)
@@ -162,8 +179,8 @@ def verify_payment(request):
     }
     response = requests.get(f"https://api.paystack.co/transaction/verify/{reference}", headers=headers)
 
-    if not response.content:
-        return error_response("No response from Paystack", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    if response.status_code != 200:
+        return error_response("Error retrieving payment status from Paystack", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     try:
         response_data = response.json()
