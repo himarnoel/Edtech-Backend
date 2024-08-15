@@ -106,8 +106,7 @@ class TransactionViewSet(BaseCRUDViewSet):
 
         # Check if the user has already paid for any of the courses
         existing_courses = set(Transaction.objects.filter(
-            user=user
-        ).values_list('courses__id', flat=True))
+        user=user).values_list('courses__course_id', flat=True))  # Change 'id' to 'course_id'
 
         if existing_courses.intersection(course_ids):
             return error_response(f"User already paid for course(s): {list(existing_courses.intersection(course_ids))}")
