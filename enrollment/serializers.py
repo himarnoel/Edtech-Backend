@@ -1,7 +1,12 @@
 from rest_framework import serializers
 from .models import Transaction, Enrollment
+from courses.models import Course
 
 class TransactionSerializer(serializers.ModelSerializer):
+    courses = serializers.PrimaryKeyRelatedField(
+        queryset=Course.objects.all(), many=True
+    )  # Handle multiple courses
+
     class Meta:
         model = Transaction
         fields = '__all__'

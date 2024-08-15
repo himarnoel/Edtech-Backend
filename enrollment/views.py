@@ -14,38 +14,47 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
+def error_response(message, status_code=status.HTTP_400_BAD_REQUEST):
+    payload = error_message(message=message)
+    return Response(data=payload, status=status_code)
+
+def initialize_payment(user, amount):
+    headers = {
+        "Authorization": f"Bearer {os.getenv('PAYSTACK_SECRET_KEY')}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "email": user.email,
+        "amount": amount,
+        "reference": str(uuid.uuid4()),
+        "callback_url": "http://localhost:3000/enrollment/api/verify-payment/",
+    }
+    response = requests.post(
+        "https://api.paystack.co/transaction/initialize",
+        headers=headers,
+        json=payload,
+    )
+    return response
+
 class BaseCRUDViewSet(viewsets.ModelViewSet):
     def handle_create_update(self, request, *args, **kwargs):
         is_post = request.method == "POST"
         try:
-            if is_post:
-                instance = None
-                data = request.data
-            else:
-                instance = self.get_object()
-                data = request.data
-
-            serializer = self.get_serializer(instance, data=data, partial=not is_post)
+            instance = None if is_post else self.get_object()
+            serializer = self.get_serializer(instance, data=request.data, partial=not is_post)
 
             if serializer.is_valid():
                 obj = serializer.save()
                 status_code = status.HTTP_201_CREATED if is_post else status.HTTP_200_OK
-                payload = success_message(
-                    message="Created Successfully" if is_post else "Updated Successfully",
-                    data=serializer.data,
-                )
+                message = "Created Successfully" if is_post else "Updated Successfully"
+                payload = success_message(message=message, data=serializer.data)
                 return Response(data=payload, status=status_code)
 
-            first_key = next(iter(serializer.errors))
-            error_msg = serializer.errors[first_key][0]
-            payload = error_message(
-                message=f"{first_key.title()} is empty" if error_msg else error_msg
-            )
-            return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+            error_msg = next(iter(serializer.errors.values()))[0]
+            return error_response(error_msg)
 
-        except Exception as e:
-            payload = error_message(message="An error occurred")
-            return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return error_response("An error occurred")
 
     def destroy(self, request, *args, **kwargs):
         try:
@@ -53,9 +62,8 @@ class BaseCRUDViewSet(viewsets.ModelViewSet):
             self.perform_destroy(instance)
             payload = success_message(message="Deleted successfully", data="")
             return Response(data=payload, status=status.HTTP_204_NO_CONTENT)
-        except Exception as e:
-            payload = error_message(message="An error occurred during deletion")
-            return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return error_response("An error occurred during deletion")
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -63,6 +71,7 @@ class BaseCRUDViewSet(viewsets.ModelViewSet):
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
+        
         serializer = self.get_serializer(queryset, many=True)
         payload = success_message(message="Fetched successfully", data=serializer.data)
         return Response(data=payload, status=status.HTTP_200_OK)
@@ -73,58 +82,43 @@ class BaseCRUDViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(instance)
             payload = success_message(message="Fetched successfully", data=serializer.data)
             return Response(data=payload, status=status.HTTP_200_OK)
-        except Exception as e:
-            payload = error_message(message="An error occurred during retrieval.")
-            return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return error_response("An error occurred during retrieval.")
 
 class TransactionViewSet(BaseCRUDViewSet):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
-    permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         user = request.user
-        course_id = request.data.get("course")
+        course_ids = request.data.get("courses", [])  # List of course IDs
         amount = request.data.get("amount")
-        
-        if Transaction.objects.filter(user=user, course_id=course_id).exists():
-            payload = error_message(message="User already paid for this course")
-            return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
-  
-  
-        headers = {
-            "Authorization": f"Bearer {os.getenv('PAYSTACK_SECRET_KEY')}",
-            "Content-Type": "application/json",
-        }
-        payload = {
-            "email": user.email,
-            "amount": amount,
-            "reference": str(uuid.uuid4()),
-            "callback_url": "http://localhost:8000/enrollment/api/verify-payment/",
-        }
-        response = requests.post(
-            "https://api.paystack.co/transaction/initialize",
-            headers=headers,
-            json=payload,
-        )
+
+        # Check if the user has already paid for any of the courses
+        existing_transactions = Transaction.objects.filter(user=user, course_id__in=course_ids).values_list('course_id', flat=True)
+        if existing_transactions:
+            return error_response(f"User already paid for course(s): {existing_transactions}")
+
+        response = initialize_payment(user, amount)
         response_data = response.json()
 
         if response_data["status"]:
-            transaction = Transaction.objects.create(
-                user=user,
-                course_id=course_id,
-                amount=amount,
-                reference=response_data["data"]["reference"],
-                status="Pending",
-            )
+            # Create a transaction for each course
+            for course_id in course_ids:
+                Transaction.objects.create(
+                    user=user,
+                    course_id=course_id,
+                    amount=amount,
+                    reference=response_data["data"]["reference"],
+                    status="Pending",
+                )
             payload = success_message(
-                message="Created Successfully",
+                message="Payment initialized successfully",
                 data={"payment_url": response_data["data"]["authorization_url"]},
             )
             return Response(data=payload, status=status.HTTP_200_OK)
         else:
-            payload = error_message(message="Payment initialization failed")
-            return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+            return error_response("Payment initialization failed")
 
 class EnrollmentViewSet(BaseCRUDViewSet):
     queryset = Enrollment.objects.all()
@@ -133,24 +127,25 @@ class EnrollmentViewSet(BaseCRUDViewSet):
 
     def create(self, request, *args, **kwargs):
         user = request.user
-        course_id = request.data.get("course")
+        course_ids = request.data.get("courses", [])  # List of course IDs
 
-        # Check if the user is already enrolled in the course
-        if Enrollment.objects.filter(user=user, course_id=course_id).exists():
-            payload = error_message(message="User already enrolled in this course")
-            return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
-        print("user", user)
+        # Check if the user is already enrolled in any of the courses
+        existing_enrollments = Enrollment.objects.filter(user=user, course_id__in=course_ids).values_list('course_id', flat=True)
+        if existing_enrollments:
+            return error_response(f"User already enrolled in course(s): {existing_enrollments}")
 
-        # Check if the payment was successful
-        try:
-            transaction = Transaction.objects.get(user=user, course_id=course_id, status="success")
-        except Transaction.DoesNotExist:
-            payload = error_message(message="Payment not completed")
-            return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+        # Ensure payment is successful for all courses
+        successful_transactions = Transaction.objects.filter(user=user, course_id__in=course_ids, status="success")
+        if successful_transactions.count() != len(course_ids):
+            return error_response("Payment not completed for all courses")
 
-        # Create the enrollment if payment is confirmed
-        enrollment = Enrollment.objects.create(user=user, course_id=course_id, transaction=transaction)
-        serializer = self.get_serializer(enrollment)
+        # Enroll the user in each course
+        enrollments = []
+        for transaction in successful_transactions:
+            enrollment = Enrollment.objects.create(user=user, course_id=transaction.course_id, transaction=transaction)
+            enrollments.append(enrollment)
+
+        serializer = self.get_serializer(enrollments, many=True)
         payload = success_message(message="Enrolled Successfully", data=serializer.data)
         return Response(data=payload, status=status.HTTP_201_CREATED)
 
@@ -159,7 +154,7 @@ class EnrollmentViewSet(BaseCRUDViewSet):
 def verify_payment(request):
     reference = request.GET.get("reference")
     if not reference:
-        return Response({"detail": "Reference is required"}, status=status.HTTP_400_BAD_REQUEST)
+        return error_response("Reference is required", status_code=status.HTTP_400_BAD_REQUEST)
 
     headers = {
         "Authorization": f"Bearer {os.getenv('PAYSTACK_SECRET_KEY')}",
@@ -168,20 +163,21 @@ def verify_payment(request):
     response = requests.get(f"https://api.paystack.co/transaction/verify/{reference}", headers=headers)
 
     if not response.content:
-        return Response({"detail": "No response from Paystack"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return error_response("No response from Paystack", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     try:
         response_data = response.json()
     except ValueError:
-        return Response({"detail": "Invalid response from Paystack"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return error_response("Invalid response from Paystack", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if response_data["status"]:
         try:
-            transaction = Transaction.objects.get(reference=reference)
-            transaction.status = response_data["data"]["status"]
-            transaction.save()
+            transactions = Transaction.objects.filter(reference=reference)
+            for transaction in transactions:
+                transaction.status = response_data["data"]["status"]
+                transaction.save()
             return Response({"detail": "Payment verified successfully"})
         except Transaction.DoesNotExist:
-            return Response({"detail": "Transaction not found"}, status=status.HTTP_404_NOT_FOUND)
+            return error_response("Transaction not found", status_code=status.HTTP_404_NOT_FOUND)
     else:
-        return Response({"detail": response_data.get("message", "Payment verification failed")}, status=status.HTTP_400_BAD_REQUEST)
+        return error_response(response_data.get("message", "Payment verification failed"))
