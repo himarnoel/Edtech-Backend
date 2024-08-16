@@ -95,6 +95,7 @@ class TransactionViewSet(BaseCRUDViewSet):
         user = request.user
         course_ids = request.data.get("courses", [])  # List of course IDs
         amount = request.data.get("amount")
+        print("course_ids", course_ids)
 
         # Validate the amount
         try:
@@ -137,6 +138,13 @@ class EnrollmentViewSet(BaseCRUDViewSet):
     queryset = Enrollment.objects.all()
     serializer_class = EnrollmentSerializer
     permission_classes = [IsAuthenticated]
+    
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        queryset = Enrollment.objects.filter(user=user)  # Filter enrollments by the authenticated user
+        serializer = self.get_serializer(queryset, many=True)
+        payload = success_message(message="Courses fetched successfully", data=serializer.data)
+        return Response(data=payload, status=status.HTTP_200_OK) 
 
     def create(self, request, *args, **kwargs):
         user = request.user
