@@ -165,6 +165,7 @@ class EnrollmentViewSet(BaseCRUDViewSet):
         payload = success_message(message="Enrolled Successfully", data=serializer.data)
         return Response(data=payload, status=status.HTTP_201_CREATED)
 
+
 @csrf_exempt
 @api_view(["GET"])
 def verify_payment(request):
