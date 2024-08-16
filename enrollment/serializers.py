@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Transaction, Enrollment
 from courses.models import Course
+from courses.serializer import CourseSerializer
 
 class TransactionSerializer(serializers.ModelSerializer):
     courses = serializers.PrimaryKeyRelatedField(
@@ -12,8 +13,8 @@ class TransactionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class EnrollmentSerializer(serializers.ModelSerializer):
-    # transaction = TransactionSerializer(read_only=True)  # Optionally include transaction details
-
+    course = CourseSerializer()  # Nest CourseSerializer to include course details
+  
     class Meta:
         model = Enrollment
-        fields = '__all__'
+        fields = ['enrollment_id', 'user', 'course', 'transaction']
