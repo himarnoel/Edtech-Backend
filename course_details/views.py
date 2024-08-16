@@ -1,11 +1,15 @@
 from django.shortcuts import render
 from rest_framework import viewsets
 from .models import Module,Lesson
-from .serializer import ModuleSerializer,LessonSerializer
+from .serializer import ModuleSerializer,LessonSerializer,CourseContentSerializer
 from core.utils import success_message, error_message
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
+from rest_framework import viewsets
+from .models import Course
+from rest_framework.permissions import IsAuthenticated
+from enrollment.models import Enrollment
 
 
 # Create your views here.
@@ -151,3 +155,53 @@ class LessonViewSet(BaseCRUDViewSet):
 
     def partial_update(self, request, *args, **kwargs):
         return self.handle_create_update(request, *args, **kwargs)
+
+
+
+class CourseContentViewset(BaseCRUDViewSet):
+    """
+    ViewSet for handling CRUD operations on Courses.
+    Inherits from BaseCRUDViewSet.
+    """
+    queryset = Course.objects.all()
+    serializer_class = CourseContentSerializer
+    # permission_classes = [IsAuthenticated]
+
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Handle GET request to retrieve a single course and check if the user has paid for it.
+        """
+        try:
+            # Retrieve the course instance
+            instance = self.get_object()
+
+            # Check if the user has paid for the course
+            is_paid = Enrollment.objects.filter(
+                user=request.user, course=instance, transaction__status='success'
+            ).exists()
+
+            # Serialize the course content
+            serializer = self.get_serializer(instance)
+
+            # Prepare the response data
+            data = {
+               
+                     "isPaid": is_paid,
+                   "data": serializer.data,
+                
+            }
+            payload = success_message(
+            message="Fetched successfully", data=data)
+            return Response(data=payload, status=status.HTTP_200_OK)
+
+            
+
+        except Course.DoesNotExist:
+            payload = error_message(
+                message="Course not found")
+            return Response(data=payload, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            payload = error_message(
+                message="Error coccured during retrival")
+            return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
