@@ -188,11 +188,29 @@ def verify_payment(request):
 
     if response_data["status"]:
         try:
+            # Find the transaction by reference
             transactions = Transaction.objects.filter(reference=reference)
+            if not transactions.exists():
+                return error_response("Transaction not found", status_code=status.HTTP_404_NOT_FOUND)
+
+            # Update the transaction status
             for transaction in transactions:
                 transaction.status = response_data["data"]["status"]
                 transaction.save()
-            return Response({"detail": "Payment verified successfully"})
+
+                # If payment was successful, enroll the user in the associated courses
+                if transaction.status.lower() == "success":
+                    for course in transaction.courses.all():
+                        # Check if the user is already enrolled
+                        if not Enrollment.objects.filter(user=transaction.user, course=course).exists():
+                            Enrollment.objects.create(
+                                user=transaction.user,
+                                course=course,
+                                transaction=transaction,
+                            )
+
+            payload = success_message(message="Enrolled Successfully", data="")
+            return Response(data=payload, status=status.HTTP_201_CREATED)     
         except Transaction.DoesNotExist:
             return error_response("Transaction not found", status_code=status.HTTP_404_NOT_FOUND)
     else:
