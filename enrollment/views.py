@@ -28,7 +28,7 @@ def initialize_payment(user, amount):
         "email": user.email,
         "amount": int(amount * 100),  # Paystack expects amount in kobo (100 kobo = 1 Naira)
         "reference": str(uuid.uuid4()),
-        "callback_url": "http://localhost:3000/dashboard/payment-confirmation",
+        "callback_url": f"{os.getenv('FE_LINK')}/dashboard/payment-confirmation",
     }
     response = requests.post(
         "https://api.paystack.co/transaction/initialize",
