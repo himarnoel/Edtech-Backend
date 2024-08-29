@@ -19,6 +19,8 @@ pip = "*"
 requests = "*"
 firebase-admin = "*"
 setuptools = "*"
+cloudinary = "*"
+django-cloudinary-storage = "*"
 
 [dev-packages]
 
