@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Module, Lesson
+from .models import Module, Lesson, VideoUpload
 from courses.models import Course
 
 
@@ -27,3 +27,11 @@ class CourseContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = ['title', 'modules', "course_id"]
+
+
+
+
+class VideoUploadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VideoUpload
+        fields = ('id', 'title', 'video')

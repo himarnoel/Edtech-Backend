@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
 from .models import Module,Lesson
-from .serializer import ModuleSerializer,LessonSerializer,CourseContentSerializer
+from .serializer import ModuleSerializer,LessonSerializer,CourseContentSerializer,VideoUploadSerializer
 from core.utils import success_message, error_message
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -10,9 +10,16 @@ from rest_framework import viewsets
 from .models import Course
 from rest_framework.permissions import IsAuthenticated
 from enrollment.models import Enrollment
-
+from rest_framework import viewsets
+from .models import VideoUpload
 
 # Create your views here.
+
+
+
+class VideoUploadViewSet(viewsets.ModelViewSet):
+    queryset = VideoUpload.objects.all()
+    serializer_class = VideoUploadSerializer
 
 
 class BaseCRUDViewSet(viewsets.ModelViewSet):

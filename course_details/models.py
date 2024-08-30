@@ -31,3 +31,12 @@ class Lesson(models.Model):
     
     def __str__(self):
         return self.title
+    
+
+
+class VideoUpload(models.Model):
+    title = models.CharField(max_length=255)
+    video = CloudinaryField('video', resource_type='video')
+
+    def __str__(self):
+        return self.title
