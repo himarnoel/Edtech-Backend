@@ -21,8 +21,6 @@ from dotenv import load_dotenv
 from corsheaders.defaults import default_headers
 
 
-
-
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -177,13 +175,11 @@ SIMPLE_JWT = {
 
 # Custom user model
 AUTH_USER_MODEL = "core.CustomUser"
-print(os.environ.get("API_KEY"))
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get("CLOUD_NAME"),
-    'API_KEY': os.environ.get("API_KEY"),
-    'API_SECRET': os.environ.get("API_SECRET")
-}
+cloudinary.config(
+    cloud_name=os.environ.get("CLOUD_NAME"),
+    api_key=os.environ.get("API_KEY"),
+    api_secret=os.environ.get("API_SECRET"))
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
