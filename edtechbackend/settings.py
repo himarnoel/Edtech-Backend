@@ -10,26 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+from pathlib import Path
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
-from cloudinary_storage.storage import RawMediaCloudinaryStorage
-from cloudinary_storage.storage import MediaCloudinaryStorage
-from cloudinary_storage.storage import VideoMediaCloudinaryStorage
-from pathlib import Path
 import os
 import dj_database_url
 from datetime import timedelta
 from dotenv import load_dotenv
 from corsheaders.defaults import default_headers
 
-# CLOUDINARY_STORAGE = {
-#     'CLOUD_NAME': 'your-cloud-name',
-#     'API_KEY': os.environ.get("API_KEY"),
-#     'API_SECRET': os.environ.get("API_SECRET"),
-# }
 
-# DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 load_dotenv()
@@ -77,8 +68,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
-    # 'cloudinary',
-    # 'cloudinary_storage'
+    'cloudinary',
+    'cloudinary_storage'
 ]
 
 MIDDLEWARE = [
