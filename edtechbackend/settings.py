@@ -23,6 +23,14 @@ from cloudinary_storage.storage import RawMediaCloudinaryStorage
 from cloudinary_storage.storage import MediaCloudinaryStorage
 from cloudinary_storage.storage import VideoMediaCloudinaryStorage
 
+# CLOUDINARY_STORAGE = {
+#     'CLOUD_NAME': 'your-cloud-name',
+#     'API_KEY': os.environ.get("API_KEY"),
+#     'API_SECRET': os.environ.get("API_SECRET"),
+# }
+
+# DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 
 load_dotenv()
 
@@ -179,6 +187,14 @@ SIMPLE_JWT = {
 # Custom user model
 AUTH_USER_MODEL = "core.CustomUser"
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get("CLOUD_NAME"),
+    'API_KEY': os.environ.get("API_KEY"),
+    'API_SECRET': os.environ.get("API_SECRET"),
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 AUTHENTICATION_BACKENDS = [
     "core.backends.EmailVerificationBackend",
     "django.contrib.auth.backends.ModelBackend",
@@ -197,12 +213,5 @@ REST_FRAMEWORK = {
 
 }
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get("CLOUD_NAME"),
-    'API_KEY': os.environ.get("API_KEY"),
-    'API_SECRET': os.environ.get("API_SECRET"),
-}
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 SWAGGER_SETTINGS = {"SECURITY_DEFINITIONS": {"Basic": {"type": "basic"}}}
