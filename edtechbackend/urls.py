@@ -42,10 +42,12 @@ urlpatterns = [
     path("course/api/", include("courses.urls")),
     path("enrollment/api/", include("enrollment.urls")),
     path("course_details/api/", include("course_details.urls")),
+    path('consult/', include("consultation.urls")),
     path(
         "swagger/",
         schema_view.with_ui("swagger", cache_timeout=0),
         name="schema-swagger-ui",
     ),
-    path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
+    path("redoc/", schema_view.with_ui("redoc",
+         cache_timeout=0), name="schema-redoc"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

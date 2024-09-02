@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "drf_yasg",
     "core",
+    'consultation',
     "courses",
     "enrollment",
     "course_details",
