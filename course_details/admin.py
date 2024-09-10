@@ -8,4 +8,4 @@ from .models import Lesson, Module,VideoUpload
 
 admin.site.register(Lesson)
 admin.site.register(Module)
-admin.site.register(VideoUpload)
+# admin.site.register(VideoUpload)

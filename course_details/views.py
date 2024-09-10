@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from .models import Module,Lesson
-from .serializer import ModuleSerializer,LessonSerializer,CourseContentSerializer,VideoUploadSerializer
+from .models import Module, Lesson, Video
+from .serializer import ModuleSerializer, LessonSerializer, CourseContentSerializer, VideoSerializer
 from core.utils import success_message, error_message
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -16,16 +16,11 @@ from .models import VideoUpload
 # Create your views here.
 
 
-
-class VideoUploadViewSet(viewsets.ModelViewSet):
-    queryset = VideoUpload.objects.all()
-    serializer_class = VideoUploadSerializer
-
-
 class BaseCRUDViewSet(viewsets.ModelViewSet):
     """
     Base class for handling POST, PUT, and PATCH,DELETE and GET both single and all requests in one Class.
     """
+
     def handle_create_update(self, request, *args, **kwargs):
         """
         Handles creation (POST), update (PUT), and partial update (PATCH) requests.
@@ -62,7 +57,8 @@ class BaseCRUDViewSet(viewsets.ModelViewSet):
             first_key = next(iter(serializer.errors))
             error_msg = serializer.errors[first_key][0]
             payload = error_message(
-                message=f"{first_key.title()} is empty" if error_msg else error_msg
+                message=f"{
+                    first_key.title()} is empty" if error_msg else error_msg
             )
             return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
 
@@ -74,8 +70,6 @@ class BaseCRUDViewSet(viewsets.ModelViewSet):
         except Exception as e:
             payload = error_message(message="An error occurred")
             return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
-        
-        
 
     def destroy(self, request, *args, **kwargs):
         # Attempt to retrieve the object to be deleted
@@ -133,12 +127,11 @@ class BaseCRUDViewSet(viewsets.ModelViewSet):
             return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class ModuleViewSet(BaseCRUDViewSet):
     queryset = Module.objects.all()
     serializer_class = ModuleSerializer
-    
-     # You can call handle_create_update for create, update, and partial_update methods.
+
+    # You can call handle_create_update for create, update, and partial_update methods.
     def create(self, request, *args, **kwargs):
         return self.handle_create_update(request, *args, **kwargs)
 
@@ -152,7 +145,7 @@ class ModuleViewSet(BaseCRUDViewSet):
 class LessonViewSet(BaseCRUDViewSet):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
-    
+
     # You can call handle_create_update for create, update, and partial_update methods.
     def create(self, request, *args, **kwargs):
         return self.handle_create_update(request, *args, **kwargs)
@@ -163,6 +156,20 @@ class LessonViewSet(BaseCRUDViewSet):
     def partial_update(self, request, *args, **kwargs):
         return self.handle_create_update(request, *args, **kwargs)
 
+
+class VideoViewSet(BaseCRUDViewSet):
+    queryset = Video.objects.all()
+    serializer_class = VideoSerializer
+
+    # You can call handle_create_update for create, update, and partial_update methods.
+    def create(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        return self.handle_create_update(request, *args, **kwargs)
 
 
 class CourseContentViewset(BaseCRUDViewSet):
@@ -192,16 +199,14 @@ class CourseContentViewset(BaseCRUDViewSet):
 
             # Prepare the response data
             data = {
-               
-                     "isPaid": is_paid,
-                   "data": serializer.data,
-                
+
+                "isPaid": is_paid,
+                "data": serializer.data,
+
             }
             payload = success_message(
-            message="Fetched successfully", data=data)
+                message="Fetched successfully", data=data)
             return Response(data=payload, status=status.HTTP_200_OK)
-
-            
 
         except Course.DoesNotExist:
             payload = error_message(
