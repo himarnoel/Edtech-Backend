@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from .models import Module, Lesson, Video
-from .serializer import ModuleSerializer, LessonSerializer, CourseContentSerializer, VideoSerializer
+from .models import Module, Lesson, Video, CourseProgress
+from .serializer import ModuleSerializer, LessonSerializer, CourseContentSerializer, VideoSerializer, CourseProgressSerializer
 from core.utils import success_message, error_message
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -11,7 +11,7 @@ from .models import Course
 from rest_framework.permissions import IsAuthenticated
 from enrollment.models import Enrollment
 from rest_framework import viewsets
-from .models import VideoUpload
+
 
 # Create your views here.
 
@@ -170,6 +170,11 @@ class VideoViewSet(BaseCRUDViewSet):
 
     def partial_update(self, request, *args, **kwargs):
         return self.handle_create_update(request, *args, **kwargs)
+
+
+class CourseProgressViewSet(BaseCRUDViewSet):
+    queryset = CourseProgress.objects.all()
+    serializer_class = CourseProgressSerializer
 
 
 class CourseContentViewset(BaseCRUDViewSet):

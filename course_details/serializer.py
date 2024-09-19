@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from .models import Module, Lesson, VideoUpload, Video, Progress
+from .models import Module, Lesson,  Video, CourseProgress
 from courses.models import Course
 
 
 class VideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
-        fields ="__all__"
+        fields = "__all__"
 
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -18,6 +18,7 @@ class LessonSerializer(serializers.ModelSerializer):
 
 class ModuleSerializer(serializers.ModelSerializer):
     lessons = LessonSerializer(many=True, read_only=True)
+
     class Meta:
         model = Module
         fields = '__all__'
@@ -25,18 +26,13 @@ class ModuleSerializer(serializers.ModelSerializer):
 
 class CourseContentSerializer(serializers.ModelSerializer):
     modules = ModuleSerializer(many=True, source='module')
+
     class Meta:
         model = Course
         fields = ['title', 'modules', "course_id"]
 
 
-
-class ProgressSerializer(serializers.ModelSerializer):
+class CourseProgressSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Progress
-        fields = ['id', 'user', 'video', 'progress', 'completed']
-
-class VideoUploadSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = VideoUpload
-        fields = ('id', 'title', 'video')
+        model = CourseProgress
+        fields = '__all__'
