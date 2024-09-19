@@ -44,7 +44,7 @@ class ConsultationView(generics.ListCreateAPIView):
             )
             payload = success_response(
                 status="Success",
-                message="Consultation created successfully",
+                message="Success",
                 data=serializer.data
             )
             return Response(payload, status=status.HTTP_201_CREATED)
