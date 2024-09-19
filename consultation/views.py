@@ -34,12 +34,12 @@ class ConsultationView(generics.ListCreateAPIView):
 
             send_consult_email_user(
                 name=consultation_data['name'],
-                email=,
+                email=consultation_data['email'],
             )
 
             send_consult_email_admin(
                 name=consultation_data['name'],
-                email=,
+                email=consultation_data['email'],
                 phone_number=consultation_data['phone_number']
             )
             payload = success_response(
