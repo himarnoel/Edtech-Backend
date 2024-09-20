@@ -22,7 +22,7 @@ def send_consult_email_admin(email, phone_number, name):
     subject = 'New Consultation Signup'
     # Use a sender email address from your domain
     from_email = settings.EMAIL_HOST_USER
-    to_email = "michael.ezeeadichie@haelsoft.com.ng"
+    to_email = email
 
     # Render email template with context
     html_content = render_to_string(

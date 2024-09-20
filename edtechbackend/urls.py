@@ -43,6 +43,7 @@ urlpatterns = [
     path("enrollment/api/", include("enrollment.urls")),
     path("course_details/api/", include("course_details.urls")),
     path('consult/', include("consultation.urls")),
+    path('blog/', include("blog.urls")),
     path(
         "swagger/",
         schema_view.with_ui("swagger", cache_timeout=0),

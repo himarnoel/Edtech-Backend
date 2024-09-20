@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "courses",
     "enrollment",
     "course_details",
+    'blog',
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
