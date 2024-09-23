@@ -57,8 +57,9 @@ class BaseCRUDViewSet(viewsets.ModelViewSet):
             first_key = next(iter(serializer.errors))
             error_msg = serializer.errors[first_key][0]
             payload = error_message(
-                message=f"{
-                    first_key.title()} is empty" if error_msg else error_msg
+                message=error_msg if error_msg else f"{
+                    first_key.title()} is empty"
+
             )
             return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
 
