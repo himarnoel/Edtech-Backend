@@ -70,6 +70,5 @@ class BlogPostViewSet(viewsets.ModelViewSet):
         # Custom response format for listing all blog posts
         return Response({
             'status': 'success',
-            'count': queryset.count(),
             'data': serializer.data
         }, status=status.HTTP_200_OK)

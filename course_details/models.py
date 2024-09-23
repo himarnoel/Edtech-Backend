@@ -62,15 +62,10 @@ class Video(models.Model):
     def save(self, *args, **kwargs):
 
         if self.video:
-            # Extract public ID from video URL
             upload_result = cloudinary.uploader.upload(
                 self.video, resource_type='video')
-
             # Fetch the video duration from Cloudinary
             self.duration = upload_result['duration']
-       
-            
-
         super().save(*args, **kwargs)
 
     def __str__(self):
