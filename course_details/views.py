@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from .models import Module, Lesson, Video, CourseProgress
-from .serializer import ModuleSerializer, LessonSerializer, CourseContentSerializer, VideoSerializer, CourseProgressSerializer
+from .models import Module, Lesson
+from .serializer import ModuleSerializer, LessonSerializer, CourseContentSerializer
 from core.utils import success_message, error_message
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -155,25 +155,6 @@ class LessonViewSet(BaseCRUDViewSet):
     def partial_update(self, request, *args, **kwargs):
         return self.handle_create_update(request, *args, **kwargs)
 
-
-class VideoViewSet(BaseCRUDViewSet):
-    queryset = Video.objects.all()
-    serializer_class = VideoSerializer
-
-    # You can call handle_create_update for create, update, and partial_update methods.
-    def create(self, request, *args, **kwargs):
-        return self.handle_create_update(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        return self.handle_create_update(request, *args, **kwargs)
-
-    def partial_update(self, request, *args, **kwargs):
-        return self.handle_create_update(request, *args, **kwargs)
-
-
-class CourseProgressViewSet(BaseCRUDViewSet):
-    queryset = CourseProgress.objects.all()
-    serializer_class = CourseProgressSerializer
 
 
 class CourseContentViewset(BaseCRUDViewSet):
