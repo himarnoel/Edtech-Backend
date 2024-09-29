@@ -6,6 +6,7 @@ from .utils import get_video_duration  # Import the utility function
 from cloudinary.models import CloudinaryField
 from core.models import CustomUser
 
+
 # Create your models here.
 
 
@@ -16,16 +17,11 @@ class Module(models.Model):
         Course, on_delete=models.CASCADE, related_name='module')
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
-    completed = models.BooleanField(default=False)
-
-    def update_completion_status(self):
-        lessons = self.lessons.all()
-        completed_lessons = lessons.filter(progress__completed=True).count()
-        self.completed = lessons.count() == completed_lessons
-        self.save()
+    
 
     def __str__(self):
         return self.title
+
 
 
 
@@ -40,6 +36,7 @@ class Lesson(models.Model):
     duration = models.FloatField(
         help_text='Duration in seconds', default=0.0)
     description = models.TextField(blank=True, null=True)
+    completed = models.BooleanField(default=False)
     module = models.ForeignKey(
         Module, on_delete=models.CASCADE, related_name='lessons')
 
@@ -49,9 +46,24 @@ class Lesson(models.Model):
                 self.video_url, resource_type='video')
             # Fetch the video duration from Cloudinary
             self.duration = upload_result['duration']
+        
+        if self.pdf_file:
+            pdf_upload_result = cloudinary.uploader.upload( 
+                self.pdf_file, resource_type='raw', access_mode='public')
+            self.pdf_file = pdf_upload_result.get('url')+".pdf"  # Set the uploaded PDF URL
         super().save(*args, **kwargs)
 
+   
     def __str__(self):
         return self.title
 
 
+
+class CourseProgress(models.Model):
+    progress_id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False, unique=True)
+    user = models.ForeignKey(CustomUser, related_name='progress', on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    completed_lessons = models.ManyToManyField(Lesson, blank=True)
+
+    def __str__(self):
+        return f"{self.user.email} - {self.course.title}"

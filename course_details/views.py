@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from .models import Module, Lesson
-from .serializer import ModuleSerializer, LessonSerializer, CourseContentSerializer
+from .models import Module, Lesson,CourseProgress
+from .serializer import ModuleSerializer, LessonSerializer, CourseContentSerializer,UserProgressSerializer
+from rest_framework.decorators import action
 from core.utils import success_message, error_message
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -154,6 +155,48 @@ class LessonViewSet(BaseCRUDViewSet):
 
     def partial_update(self, request, *args, **kwargs):
         return self.handle_create_update(request, *args, **kwargs)
+
+
+
+class UserProgressViewSet(viewsets.ModelViewSet):
+    queryset = CourseProgress.objects.all()
+    serializer_class = UserProgressSerializer
+
+    @action(detail=False, methods=['post'])
+    def complete_lesson(self, request):
+        # Retrieve user and lesson_id from the request data
+        user = request.user
+        lesson_id = request.data.get('lesson_id')
+        course_id = request.data.get('course_id')
+
+        if not lesson_id or not course_id:
+            return Response({'error': 'Lesson ID and Course ID are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Fetch the Lesson object
+        try:
+            lesson = Lesson.objects.get(id=lesson_id)
+        except Lesson.DoesNotExist:
+            return Response({'error': 'Lesson not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Fetch the Course object
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return Response({'error': 'Course not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if the progress already exists for the user and course
+        progress, created =CourseProgress.objects.get_or_create(user=user, course=course)
+
+        # Mark the lesson as completed
+        lesson.completed = True
+        lesson.save()
+
+        # Add the lesson to the user's completed lessons if not already there
+        progress.completed_lessons.add(lesson)
+        progress.save()
+
+        return Response({'status': 'Lesson completed successfully', 'progress_id': progress.id})
+
 
 
 
