@@ -2,6 +2,7 @@ from django.db import models
 from cloudinary.models import CloudinaryField
 from core.models import CustomUser
 import uuid
+import cloudinary.uploader
 
 
 # Create your models here.
@@ -21,9 +22,7 @@ class Course(models.Model):
     course_id = models.UUIDField(
         default=uuid.uuid4, primary_key=True, editable=False, unique=True)
     title = models.CharField(max_length=200)
-    # category= models.ForeignKey(Category,on_delete=models.CASCADE, related_name="courses")
-    image = models.CharField(
-        max_length=255, default="https://firebasestorage.googleapis.com/v0/b/web-project-ca895.appspot.com/o/haelsoft%2Fcourse2.png?alt=media&token=dc1bc361-eefb-4963-87b9-c449213f1ea0"),
+    img_course=CloudinaryField('image', resource_type='image', blank=True, null=True)
     video_url = CloudinaryField('video', resource_type='video', blank=True, null=True)
     description = models.TextField(max_length=800, unique=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)

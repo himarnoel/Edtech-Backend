@@ -6,7 +6,7 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('name',)  # Allow searching by category name
 
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('title', 'price', 'creation_date', 'video_url')  # Display title, price, creation date, and video URL
+    list_display = ('title', 'price', 'creation_date','img_course', 'video_url')  # Display title, price, creation date, and video URL
     list_filter = ('price', 'creation_date')  # Filter by price and creation date
     search_fields = ('title', 'description')  # Search by title and description
 
