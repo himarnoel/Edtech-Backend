@@ -47,10 +47,6 @@ class Lesson(models.Model):
             # Fetch the video duration from Cloudinary
             self.duration = upload_result['duration']
         
-        if self.pdf_file:
-            pdf_upload_result = cloudinary.uploader.upload( 
-                self.pdf_file, resource_type='raw', access_mode='public')
-            self.pdf_file = pdf_upload_result.get('url')+".pdf"  # Set the uploaded PDF URL
         super().save(*args, **kwargs)
 
    
