@@ -15,7 +15,7 @@ class LessonSerializer(serializers.ModelSerializer):
             'video_url',
             'pdf_file',
             'duration',
-            'description',
+            'transcript',
             'module',
             'is_completed',
         ]

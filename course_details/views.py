@@ -242,6 +242,7 @@ class CourseContentViewset(BaseCRUDViewSet):
             return Response(data=payload, status=status.HTTP_404_NOT_FOUND)
 
         except Exception as e:
+            print(f"e {e}")
             payload = error_message(
                 message="Error coccured during retrival")
             return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
