@@ -161,6 +161,12 @@ class LessonViewSet(BaseCRUDViewSet):
 class UserProgressViewSet(viewsets.ModelViewSet):
     queryset = CourseProgress.objects.all()
     serializer_class = UserProgressSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Filter the queryset to show only the progress for the logged-in user
+        user = self.request.user
+        return CourseProgress.objects.filter(user=user) 
 
     @action(detail=False, methods=['post'])
     def complete_lesson(self, request):
@@ -207,7 +213,7 @@ class CourseContentViewset(BaseCRUDViewSet):
     """
     queryset = Course.objects.all()
     serializer_class = CourseContentSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def retrieve(self, request, *args, **kwargs):
         """
