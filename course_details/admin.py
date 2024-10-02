@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Lesson, Module,CourseProgress
+from .models import Lesson, Module,UserCourseProgress
 
 class LessonAdmin(admin.ModelAdmin):
     list_display = ('title', 'module', 'duration', 'video_url', 'pdf_file')  # Display more fields for Lesson
@@ -21,6 +21,6 @@ class CourseProgressAdmin(admin.ModelAdmin):
         return obj.completed_lessons.count()  # Custom method to display the total number of completed lessons
     total_completed_lessons.short_description = 'Completed Lessons'  # Display name in admin interface
 
-admin.site.register(CourseProgress, CourseProgressAdmin)
+admin.site.register(UserCourseProgress, CourseProgressAdmin)
 admin.site.register(Lesson, LessonAdmin)
 admin.site.register(Module, ModuleAdmin)

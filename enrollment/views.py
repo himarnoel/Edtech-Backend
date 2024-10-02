@@ -166,7 +166,7 @@ class EnrollmentViewSet(BaseCRUDViewSet):
         # Enroll the user in each course
         enrollments = []
         for transaction in successful_transactions:
-            enrollment = Enrollment.objects.create(user=user, course=transaction.course, transaction=transaction)
+            enrollment = Enrollment.objects.create(user=user, course=transaction.course, transaction=transaction, isPaid=True)
             enrollments.append(enrollment)
 
         serializer = self.get_serializer(enrollments, many=True)
@@ -216,6 +216,7 @@ def verify_payment(request):
                                 user=transaction.user,
                                 course=course,
                                 transaction=transaction,
+                                isPaid=True
                             )
 
             payload = success_message(message="Enrolled Successfully", data="")

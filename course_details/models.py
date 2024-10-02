@@ -56,70 +56,28 @@ class Lesson(models.Model):
             # Fetch the video duration from Cloudinary
             self.duration = upload_result['duration']
 
-            # Transcribe the video and set the transcript
-            self.transcript = self.transcribe_video(self.video_url)
-
         # Now save the lesson after modifications are made
         super().save(*args, **kwargs)  # This should be called once
 
 
-    def transcribe_video(self, video_url):
-        if not video_url:
-            return "No video URL provided."
 
-        print(f"Transcribing video from URL: {video_url}")
-
-        # Download the video file
-        response = requests.get(video_url)
-        if response.status_code == 200:
-            # Create a temporary file to store the downloaded video
-            temp_video_path = tempfile.mktemp(suffix=".mp4")
-            with open(temp_video_path, 'wb') as temp_video:
-                temp_video.write(response.content)
-
-            # Extract audio from video
-            audio_path = f"{temp_video_path}.wav"
-            video_clip = VideoFileClip(temp_video_path)
-            print(f"Audio path: {audio_path}")
-
-            # Use a context manager to ensure the video clip is properly closed
-            try:
-                video_clip.audio.write_audiofile(audio_path)
-            finally:
-                video_clip.close()  # Ensure the video clip is closed
-
-            # Transcribe audio
-            recognizer = sr.Recognizer()
-            try:
-                with sr.AudioFile(audio_path) as source:
-                    audio_data = recognizer.record(source)
-                    transcript = recognizer.recognize_google(audio_data)  # Store transcript here
-            except sr.UnknownValueError:
-                transcript = "Could not understand the audio."
-            except sr.RequestError as e:
-                transcript = f"Could not request results from Google Speech Recognition service; {e}"
-            # finally:
-            #     # Clean up audio and temporary video files
-            #     if os.path.exists(audio_path):
-            #         # os.remove(audio_path)
-            #     if os.path.exists(temp_video_path):
-            #         os.remove(temp_video_path)
-
-        else:
-            transcript = "Failed to download video."
-
-        return transcript  # Return the transcript, do not call self.save()
-    
     def __str__(self):
         return self.title
 
 
 
-class CourseProgress(models.Model):
+class UserCourseProgress(models.Model):
     progress_id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False, unique=True)
     user = models.ForeignKey(CustomUser, related_name='progress', on_delete=models.CASCADE)
+    completed_lessons = models.ManyToManyField(Lesson)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     completed_lessons = models.ManyToManyField(Lesson, blank=True)
+
+    @property
+    def progress_percentage(self):
+        total_lessons = self.course.modules.aggregate(total=models.Sum(models.Count('lessons')))['total']
+        completed_lessons = self.completed_lessons.count()
+        return (completed_lessons / total_lessons) * 100 if total_lessons > 0 else 0
 
     def __str__(self):
         return f"{self.user.email} - {self.course.title}"

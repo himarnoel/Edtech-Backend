@@ -3,6 +3,8 @@ from core.models import CustomUser
 import uuid
 from courses.models import Course
 
+
+
 class Transaction(models.Model):
     reference = models.UUIDField(
         default=uuid.uuid4, editable=False, primary_key=True, unique=True
@@ -34,6 +36,7 @@ class Enrollment(models.Model):
     transaction = models.ForeignKey(
         Transaction, on_delete=models.CASCADE, related_name="enrollments"
     )
+    isPaid = models.BooleanField(default=False)
 
     class Meta:
         unique_together = (
