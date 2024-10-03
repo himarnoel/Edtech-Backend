@@ -37,9 +37,10 @@ class UserCourseProgressSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserCourseProgress
-        fields ="__all__"
+        fields = "__all__"
 
     def get_course(self, obj):
-        from courses.serializer import CourseSerializer  # Lazy import here
+        from courses.serializer import CourseSerializer  # Lazy import
         return CourseSerializer(obj.course).data
+
 

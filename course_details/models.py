@@ -69,12 +69,12 @@ class Lesson(models.Model):
 class UserCourseProgress(models.Model):
     progress_id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False, unique=True)
     user = models.ForeignKey(CustomUser, related_name='progress', on_delete=models.CASCADE)
-    completed_lessons = models.ManyToManyField(Lesson)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
     completed_lessons = models.ManyToManyField(Lesson, blank=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
 
     @property
     def progress_percentage(self):
+        # Ensure you aggregate the total lessons for the course
         total_lessons = self.course.modules.aggregate(total=models.Sum(models.Count('lessons')))['total']
         completed_lessons = self.completed_lessons.count()
         return (completed_lessons / total_lessons) * 100 if total_lessons > 0 else 0
