@@ -22,6 +22,7 @@ class Course(models.Model):
     course_id = models.UUIDField(
         default=uuid.uuid4, primary_key=True, editable=False, unique=True)
     title = models.CharField(max_length=200)
+    category = models.ForeignKey(Category, related_name='courses', on_delete=models.CASCADE)
     img_course=CloudinaryField('image', resource_type='image', blank=True, null=True)
     video_url = CloudinaryField('video', resource_type='video', blank=True, null=True)
     description = models.TextField(max_length=800, unique=True)
