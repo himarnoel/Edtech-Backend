@@ -8,13 +8,14 @@ from django.contrib.auth import get_user_model
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from .models import CustomUser
-from .serializers import UserSignUpSerializer, UserLoginSerializer, PasswordResetRequestSerializer, PasswordResetSerializer
+from .serializers import UserSignUpSerializer, UserLoginSerializer,UserSerializer, PasswordResetRequestSerializer, PasswordResetSerializer
 from .utils import send_verification_email, send_resetPassword_email
 from django.contrib.auth.tokens import default_token_generator
 import uuid
 from django.utils.http import urlsafe_base64_decode
 from rest_api_payload import success_response, error_response
 from .utils import error_message, success_message
+from rest_framework.permissions import IsAuthenticated
 
 User = get_user_model()
 class UserSignUpAPIView(generics.CreateAPIView):
@@ -34,6 +35,15 @@ class UserSignUpAPIView(generics.CreateAPIView):
         firstkey = next(iter(serializer.errors))
         payload = error_message(message=serializer.errors[firstkey][0])
         return Response(data=payload, status=status.HTTP_400_BAD_REQUEST)
+
+class UserInfoView(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user  # Get the currently authenticated user
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
 
 
 class EmailVerificationAPIView(generics.GenericAPIView):

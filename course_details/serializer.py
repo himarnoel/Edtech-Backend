@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.db import models 
 from .models import Module, Lesson,  UserCourseProgress
 from courses.models import Course
-
+from courses.serializer import CourseSerializer
 
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -30,17 +30,16 @@ class CourseContentSerializer(serializers.ModelSerializer):
 
 
 
-class UserCourseProgressSerializer(serializers.ModelSerializer):
-    course = serializers.SerializerMethodField()
-    completed_lessons = LessonSerializer(many=True, read_only=True)
-    progress_percentage = serializers.FloatField(read_only=True)
-
+class UserCourseProgressSerializer(serializers.ModelSerializer):  
+    course= CourseSerializer(read_only=True)
     class Meta:
         model = UserCourseProgress
-        fields = "__all__"
+        fields = ["course", "lesson", "isCompleted"]
+        
 
-    def get_course(self, obj):
-        from courses.serializer import CourseSerializer  # Lazy import
-        return CourseSerializer(obj.course).data
+
+
+
+
 
 

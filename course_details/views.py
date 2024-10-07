@@ -158,30 +158,23 @@ class LessonViewSet(BaseCRUDViewSet):
 
 
 
-class UserCoursesProgressViewSet(viewsets.ModelViewSet):
+class UserCoursesProgressViewSet(viewsets.ModelViewSet, ):
     serializer_class = UserCourseProgressSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
-    # Override the get_queryset method to filter progress based on the authenticated user
     def get_queryset(self):
         user = self.request.user
         return UserCourseProgress.objects.filter(user=user)
+    
+    def perform_create(self, serializer):
+        print(f"user {self.request.user}")
+        serializer.save(user=self.request.user)
 
-    @action(detail=True, methods=['post'])
-    def complete_lesson(self, request, pk=None):
-        progress = self.get_object()  # Ensure you're getting the correct object
-        user = self.request.user
-        lesson_id = request.data.get('lesson_id')
+    def perform_update(self, serializer):
+        serializer.save(user=self.request.user,)
+    
 
-        try:
-            lesson = Lesson.objects.get(id=lesson_id, module__course=progress.course)
-            progress.completed_lessons.add(lesson)
-            progress.user = user  # Ensure the user is associated with the progress
-            progress.save()
 
-            return Response({'status': 'lesson marked as completed'})
-        except Lesson.DoesNotExist:
-            return Response({'error': 'Invalid lesson ID'}, status=status.HTTP_400_BAD_REQUEST)
 
     
 
