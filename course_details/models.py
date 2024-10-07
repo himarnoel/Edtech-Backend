@@ -71,11 +71,10 @@ class UserCourseProgress(models.Model):
     user = models.ForeignKey(CustomUser, related_name='progress', on_delete=models.CASCADE)
     lesson = models.ForeignKey(Lesson,null=True, related_name='progress',on_delete=models.CASCADE)
     isCompleted=models.BooleanField(default=False)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE,related_name='user_progress',)
 
     class Meta:
         unique_together=["user","lesson"]
 
    
     def __str__(self):
-        return f"{self.user.email} - {self.course.title}"
+        return f"{self.user.email} - {self.lesson}"

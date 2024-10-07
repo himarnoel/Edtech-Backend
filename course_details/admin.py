@@ -21,6 +21,6 @@ class ModuleAdmin(admin.ModelAdmin):
 #         return obj.completed_lessons.count()  # Custom method to display the total number of completed lessons
 #     total_completed_lessons.short_description = 'Completed Lessons'  # Display name in admin interface
 
-# admin.site.register(UserCourseProgress, CourseProgressAdmin)
+admin.site.register(UserCourseProgress)
 admin.site.register(Lesson, LessonAdmin)
 admin.site.register(Module, ModuleAdmin)

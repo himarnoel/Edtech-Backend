@@ -31,10 +31,10 @@ class CourseContentSerializer(serializers.ModelSerializer):
 
 
 class UserCourseProgressSerializer(serializers.ModelSerializer):  
-    course= CourseSerializer(read_only=True)
+
     class Meta:
         model = UserCourseProgress
-        fields = ["course", "lesson", "isCompleted"]
+        fields = [ "progress_id","lesson", "isCompleted"]
         
 
 
