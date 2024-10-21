@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterField(
             model_name='userprogress',
-            name='id',
+            name='userprogress_id',
             field=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False),
         ),
     ]
