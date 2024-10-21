@@ -46,7 +46,7 @@ EMAIL_HOST_USER = os.environ.get("host_user_email")
 EMAIL_HOST_PASSWORD = os.environ.get("host_user_password")
 
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "edtech-backend-q2ud.onrender.com"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "edtech-backend-q2ud.onrender.com", "edbackend-8olf.onrender.com"]
 
 
 # Application definition
